@@ -1,5 +1,7 @@
 # Rock Paper Scissors 2 (working title)
 
+<img src="https://i.ibb.co/7NsTd89/preprealphamock.png">
+
 ## Basal Declarations
 
 >### Choose "Rock Paper Scissors" as a character
@@ -94,3 +96,4 @@
 
 - to be filled with nonsense
 - you were warned
+- could possibly turn it into "rock" is always squares, laser is always L blocks, and Ice is straight lines, turn it into some kind of Tetris shooter type thing. 
