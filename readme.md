@@ -22,11 +22,11 @@
 >- *unsure*: make 2 players WASD Lctrl(shoot optional) && Arrows Rctrl(shoot optional) || make 2nd player COM, enable/disable enemies && control with mouse+click(shoot) *stretch* add right click dodge or alternate fire
 >- *unsure*: should laser be fire? should rocket be something else? should ice be something else? I'm having trouble thinking of an icon, image, or enemy attack for laser specifically.
 >- *unsure*: Ice is general, and magical, Maybe I can just turn this whole damn thing into a Frozen game where you play as Elsa, dodging the core elements and their attacks.
-
-### MUCH TO THINK ABOUT
-
->- *VERY unsure*: if single player route, change to elemental dodge game, maybe make player character elsa, hey frozen 2 was pretty good guys
->- *VERY unsure*: could just be a block clearing game too, where your chosen character deletes bads and collects goods
+>
+>>### MUCH TO THINK ABOUT
+>>
+>>- *VERY unsure*: if single player route, change to elemental dodge game, maybe make player character elsa, hey frozen 2 was pretty good guys
+>>- *VERY unsure*: could just be a block clearing game too, where your chosen character deletes bads and collects goods
 
 ## present working game logic
 
@@ -38,34 +38,36 @@
 >
 >
 >- *quotes are to be my js tags, using Destiny nomenclature, Ice ability is core influence from Destiny, so it felt appropriate*
+>
+>>### Game Logic
+>>
+>>- 3 different blocks descending, randomly || set levels
+>>- 6-10+ origin columns
+>>- player alternates current column to move piece || mouse move
+>>- descending blocks in connected pieces, and adhere to grid
+>>
+>>### Rocket Logic
+>>
+>>- singular or multi rocket icon or basically an airplane
+>>- Rocket bombs laser blocks
+>>- Rocket stands in Rocket to be safe/heal?
+>>- Rocket slowly freezes/dies in Ice
+>>
+>>### Laser Logic
+>>
+>>- Laser...rifle? icon? perpetual laser beam originating below start point?
+>>- Laser melts ice blocks
+>>- Laser safe in laser blocks
+>>- Laser gets bombed or something idk
+>>
+>>### Shiver Logic
+>>
+>>- some kind of circular ice ring or a snowflake or something
+>>- Freezes/shatters rocket blocks
+>>- safe in ice blocks
+>>- melts in laser blocks
 
-### Game Logic
-
->- 3 different blocks descending, randomly || set levels
->- 6-10+ origin columns
->- player alternates current column to move piece || mouse move
->- descending blocks in connected pieces, and adhere to grid
-
-### Rocket Logic
-
->- singular or multi rocket icon or basically an airplane
->- Rocket bombs laser blocks
->- Rocket stands in Rocket to be safe/heal?
->- Rocket slowly freezes/dies in Ice
-
-### Laser Logic
-
->- Laser...rifle? icon? perpetual laser beam originating below start point?
->- Laser melts ice blocks
->- Laser safe in laser blocks
->- Laser gets bombed or something idk
-
-### Shiver Logic
-
->- some kind of circular ice ring or a snowflake or something
->- Freezes/shatters rocket blocks
->- safe in ice blocks
->- melts in laser blocks
+***
 
 ## freethink zone
 
