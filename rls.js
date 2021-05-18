@@ -1,6 +1,6 @@
 /* top layer */
 
-// is this effectively a DOMContentLoaded?
+// is this effectively a DOMContentLoaded? look it up 
 window.onload = function() {
 const canvas = document.getElementById('canvas1')
 // i dont fully understand context commands
