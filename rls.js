@@ -1,9 +1,11 @@
 // head
+window.onload = function() {
 const canvas = document.getElementById('canvas1')
 const ctx = canvas.getContext('2d')
 canvas.width = 1000
 canvas.height = 563
 canvas.tabIndex = 1
+let canvasPosition = canvas.getBoundingClientRect()
 // canvas.addEventListener('keydown', function(e){
 //     move = false
 //     x = false
@@ -28,26 +30,18 @@ canvas.tabIndex = 1
 // enter    13
 let leftPressed = false
 let rightPressed = false
-let shootPressed = false
-let pausePressed = false
-let startPressed = false
-canvas.addEventListener('keypress', e => {
-    console.log(e.key)
-    console.log(leftPressed)
-    if(e.key = 'a') {
-        leftPressed = true
-    }
-    if(e.key = 'd') {
-        rightPressed = true
-    }
-    if(e.key = 'm') {
-        shootPressed = true
-    }
-    if(e.key = 'p') {
-        pausePressed = true
-    }
-    if(e.key = 'Enter') {
-        startPressed = true
+
+canvas.addEventListener('mousedown', e => {
+    lastDownTarget = e.target
+})
+canvas.addEventListener('keydown', e => {
+    if(lastDownTarget == canvas) {
+        if(e.key == 'a') {
+            leftPressed = true
+        } else {leftPressed = false}
+        if(e.key == 'd') {
+            rightPressed = true
+        } else {rightPressed = false}
     }
 })
 // document.addEventListener('keydown', keyDownHandler, false)
@@ -94,36 +88,35 @@ const playerPic = new Image()
 playerPic.src = 'speship-left.png'
 let score = 0
 let gameFrame = 0
-let canvasPosition = canvas.getBoundingClientRect()
 
 // player toolings
 class Player {
     constructor (){
         this.x = canvas.width/2
         this.y = canvas.height/2
-        this.radius = 50
+        this.radius = 125
         this.angle = 0
         this.frameX = 0
+        this.frameY = this.y
         this.frame = 0
         this.spriteWidth = 500
         this.spriteHeight = 500
     }
+
     draw(){
-        // ctx.clearRect(0, 0, canvas.width, canvas.height)
-        // if(rightPressed) {
-        //     playerX += 3
-        //     console.log('right')
-        // }
-        // if(leftPressed) {
-        //     playerX -= 3
-        //     console.log('left')
-        // }
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if(rightPressed) {
+            this.x += 3
+            console.log('right')
+        }
+        if(leftPressed) {
+            this.x -= 3
+            console.log('left')
+        }
         ctx.fillStyle = 'lightsalmon'
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI *2)
-        ctx.fill()
-        ctx.closePath()
-        ctx.fillRect(this.x, this.y, this.radius, 10)
+        ctx.fillRect(this.x, this.y, this.radius, 125)
+        ctx.save()
+        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth, this.spriteHeight, 0, 0, this.spriteWidth/4, this.spriteHeight/4)
     }
 }
 
@@ -136,8 +129,8 @@ class Tetromino {
     constructor(){
         this.x = Math.random() * canvas.width
         this.y = canvas.height + 100
-        this.radius = 50
         this.speed = Math.random() * 1.8
+        this.radius = 125
         this.distance
         this.blasted = false
     }
@@ -150,9 +143,7 @@ class Tetromino {
     draw(){
         ctx.fillStyle = 'slateblue'
         ctx.beginPath()
-        // look up square instead of circle for below
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.fillRect(this.x, this.y, this.radius, 125)
         ctx.closePath()
         ctx.stroke()
     }
@@ -247,3 +238,4 @@ score incrementor - score++ my friend (iterations stretch goal)
 
 
 */
+}
