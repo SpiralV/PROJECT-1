@@ -1,22 +1,100 @@
 // head
 const canvas = document.getElementById('canvas1')
-const contx = canvas.getContext('2d')
+const ctx = canvas.getContext('2d')
 canvas.width = 1000
 canvas.height = 563
-contx.font = '50px Tahoma'
+canvas.tabIndex = 1
+// canvas.addEventListener('keydown', function(e){
+//     move = false
+//     x = false
+//     y = false
+//     let keycode
+//     if(window.event) keycode = window.event.keyCode
+//     else if (e) keycode = e.which
+//     switch(keycode) {
+//         case 37:
+//             move = true
+//             x = 'negative'
+//         break
+//         case 39:
+//             move = true
+//             x = 'positive'
+//     }
+// })
 //*button* *keycode* 
 // left     37 
 // right    39 
 // space    32
 // enter    13
+let leftPressed = false
+let rightPressed = false
+let shootPressed = false
+let pausePressed = false
+let startPressed = false
+canvas.addEventListener('keypress', e => {
+    console.log(e.key)
+    console.log(leftPressed)
+    if(e.key = 'a') {
+        leftPressed = true
+    }
+    if(e.key = 'd') {
+        rightPressed = true
+    }
+    if(e.key = 'm') {
+        shootPressed = true
+    }
+    if(e.key = 'p') {
+        pausePressed = true
+    }
+    if(e.key = 'Enter') {
+        startPressed = true
+    }
+})
+// document.addEventListener('keydown', keyDownHandler, false)
+// document.addEventListener('keyup', keyUpHandler, false)
+// let rightPressed = false
+// let leftPressed = false
 
-// canvas.addEventListener('keypress 37', () => {}
+// function keyDownHandler(event) {
+//     if(event.keycode == 39) {
+//         rightPressed = true
+//     }
+//     if(event.keycode == 37) {
+//         leftPressed = true
+//     }
+// }
+
+// function keyUpHandler(event) {
+//     if(event.keycode == 39) {
+//         rightPressed = false
+//     }
+//     if(event.keycode == 37) {
+//         leftPressed = false
+//     }
+// }
+// const inpHelp = { left: 37, right: 39 }
+// let leftPressed = false
+// let rightPressed = false
+
+// function inpManage(event) {
+//     if(event.keyCode == inpHelp.left) {
+//         leftPressed = true
+//         console.log('left')
+//     }
+//     if(event.keyCode == inpHelp.right) {
+//         rightPressed = true
+//         console.log('right')
+//     }
+// }
+
+
 
 // top-scoped declarations
 const playerPic = new Image()
 playerPic.src = 'speship-left.png'
 let score = 0
 let gameFrame = 0
+let canvasPosition = canvas.getBoundingClientRect()
 
 // player toolings
 class Player {
@@ -24,16 +102,28 @@ class Player {
         this.x = canvas.width/2
         this.y = canvas.height/2
         this.radius = 50
+        this.angle = 0
+        this.frameX = 0
+        this.frame = 0
         this.spriteWidth = 500
         this.spriteHeight = 500
     }
     draw(){
-        contx.fillStyle = 'lightsalmon'
-        contx.beginPath()
-        contx.arc(this.x, this.y, this.radius, 0, Math.PI *2)
-        contx.fill()
-        contx.closePath()
-        contx.fillRect(this.x, this.y, this.radius, 10)
+        // ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // if(rightPressed) {
+        //     playerX += 3
+        //     console.log('right')
+        // }
+        // if(leftPressed) {
+        //     playerX -= 3
+        //     console.log('left')
+        // }
+        ctx.fillStyle = 'lightsalmon'
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI *2)
+        ctx.fill()
+        ctx.closePath()
+        ctx.fillRect(this.x, this.y, this.radius, 10)
     }
 }
 
@@ -41,6 +131,7 @@ const player = new Player()
 
 // enemy targets
 const minosArray = []
+// set blocks in groups of four, tetromino shapes, change hit box to morph to block oh god how
 class Tetromino {
     constructor(){
         this.x = Math.random() * canvas.width
@@ -57,16 +148,17 @@ class Tetromino {
         this.distance = Math.sqrt(dx*dx + dy*dy)
     }
     draw(){
-        contx.fillStyle = 'slateblue'
-        contx.beginPath()
+        ctx.fillStyle = 'slateblue'
+        ctx.beginPath()
         // look up square instead of circle for below
-        contx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-        contx.fill()
-        contx.closePath()
-        contx.stroke()
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.closePath()
+        ctx.stroke()
     }
 }
 
+// set blocks in groups of four, tetromino shapes, change hit box to morph to block oh god how
 function blockFarm(){
     // look up how to set this interval, or just use the game frames
     if(gameFrame % 250 == 0){
@@ -93,11 +185,11 @@ function blockFarm(){
 
 // Canvas activation
 function animate(){
-    contx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     blockFarm()
     player.draw()
-    contx.fillStyle = 'slategrey'
-    contx.fillText('score : ' + score, 10, 50)
+    ctx.fillStyle = 'slategrey'
+    ctx.fillText('score : ' + score, 10, 50)
     gameFrame++
     requestAnimationFrame(animate)
 }
