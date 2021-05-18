@@ -1,15 +1,15 @@
 /* top layer */
 
-// is this effectively a DOMContentLoaded? look it up 
+// window.onload over DOMContentLoaded to ensure all related content is loaded
 window.onload = function() {
-const canvas = document.getElementById('canvas1')
-// i dont fully understand context commands
-const ctx = canvas.getContext('2d')
-// some examples use width and height in the HTML. 2021 best practice?
-canvas.width = 1000
-canvas.height = 563
+    const canvas = document.getElementById('canvas1')
+    const ctx = canvas.getContext('2d')
+    // setting attributes (is css redundant?)
+    canvas.width = 1000
+    canvas.height = 563
+    ctx.imageSmoothingEnabled = false
 // trying to make this clickable but I can only tab to it.
-canvas.tabIndex = 1
+    canvas.tabIndex = 1
 
 // setting canvasPosition for determining border collision, unsure so far
 // let canvasPosition = canvas.getBoundingClientRect()
@@ -18,30 +18,13 @@ canvas.tabIndex = 1
 
 // several attempts at inputs. Current solution has bugs, but most effective so far
 // some random combination for inputs that worked for someone, "which" is outdated?
+// // update -- deleted outdated terminology
 
 //*button* *keycode* 
 // left     37 
 // right    39 
 // space    32
 // enter    13
-
-// canvas.addEventListener('keydown', function(e){
-//     move = false
-//     x = false
-//     y = false
-//     let keycode
-//     if(window.event) keycode = window.event.keyCode
-//     else if (e) keycode = e.which
-//     switch(keycode) {
-//         case 37:
-//             move = true
-//             x = 'negative'
-//         break
-//         case 39:
-//             move = true
-//             x = 'positive'
-//     }
-// })
 
 // document.addEventListener('keydown', keyDownHandler, false)
 // document.addEventListener('keyup', keyUpHandler, false)
@@ -83,7 +66,6 @@ canvas.tabIndex = 1
 // trying to incorporate these shorthands to control Player input speed, etc.
 let leftPressed = false
 let rightPressed = false
-
 // not rly doing anything
 canvas.addEventListener('mousedown', e => {
     lastDownTarget = e.target
@@ -91,15 +73,14 @@ canvas.addEventListener('mousedown', e => {
 
 // this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
 canvas.addEventListener('keydown', e => {
-    if(lastDownTarget == canvas) {
-        if(e.key == 'a') {
-            leftPressed = true
-        } else {leftPressed = false}    
-        if(e.key == 'd') {
-            rightPressed = true
-        } else {rightPressed = false}    
+    if(e.key == 'a') {
+    leftPressed = true
+    }     
+    if(e.key == 'd') {
+    rightPressed = true
     }    
-})    
+})
+
 // I want to make the game start screen be a dual-function pause/start screen, with p key for pause, start/restart for enter, shoot for m
 // for MVP I could just make start/pause buttons in HTML perhaps, but I'd rather incorporate these, and maybe even up down (w, s)
 
@@ -108,15 +89,17 @@ canvas.addEventListener('keydown', e => {
 const playerPic = new Image()
 playerPic.src = 'speship-left.png'
 let score = 0
-// copied functionality for timing and things. Sometimes it doesn't work right with the block generation/appearing on screen, still in progress with translating/implementing block generator
-let gameFrame = 0
+// copied functionality for timing and things. Sometimes it doesn't work right with the block generation/appearing on screen. Using setInterval for frame control now
+// let gameFrame = 0
 
 // player toolings
 class Player {
     constructor (){
-        this.x = canvas.width/2
-        this.y = canvas.height/2
+        // consider hardcoding vs this approach
+        this.x = 400
+        this.y = 250
         this.radius = 125
+        this.distance
         // not using these (from fishgame) right now, might implement them later
         // this.angle = 0
         // this.frameX = 0
@@ -129,12 +112,10 @@ class Player {
     draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         if(rightPressed) {
-            this.x += 3
-            console.log('right')
+            this.x += 1
         }
         if(leftPressed) {
-            this.x -= 3
-            console.log('left')
+            this.x -= 1
         }
         ctx.fillStyle = 'lightsalmon'
         ctx.fillRect(this.x, this.y, this.radius, 125)
@@ -144,13 +125,13 @@ class Player {
     }
 }
 // i think this just fires the Player function?
-const player = new Player()
-
+const player = new Player(setInterval, 60)
 // enemy targets
 const minosArray = []
 // would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
 class Tetromino {
     constructor(){
+        // implement ogre Crawler type situation for various block types
         this.x = Math.random() * canvas.width
         this.y = canvas.height + 100
         this.speed = Math.random() * 1.8
@@ -159,13 +140,16 @@ class Tetromino {
         this.blasted = false
     }
     update(){
+        // is this working with player? idk
         this.y -= this.speed
-        const dx = this.x - player.x
-        const dy = this.y - player.y
-        this.distance = Math.sqrt(dx*dx + dy*dy)
+        const dx = this.x 
+        const dy = this.y
+        this.distance = Math.sqrt(dx, dy)
+
     }
     draw(){
         ctx.fillStyle = 'slateblue'
+        // do i need beginPath closePath for
         ctx.beginPath()
         ctx.fillRect(this.x, this.y, this.radius, 125)
         ctx.closePath()
@@ -177,8 +161,9 @@ class Tetromino {
 
 // this is copied from codealong, don't fully understand it just looking at it today.
 function blockFarm(){
+    let frameSec = setInterval(blockFarm, 600)
     // look up how to set this interval, or just use the game frames
-    if(gameFrame % 2250 == 0){
+    if(frameSec % 100000 === 0){
         minosArray.push(new Tetromino())
     }
     for (let i = 0; i < minosArray.length; i++){
@@ -209,7 +194,6 @@ function animate(){
     player.draw()
     ctx.fillStyle = 'slategrey'
     ctx.fillText('score : ' + score, 10, 50)
-    gameFrame++
     requestAnimationFrame(animate)
 }
 animate ()
