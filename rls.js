@@ -8,8 +8,9 @@ window.onload = function() {
     canvas.width = 1000
     canvas.height = 563
     ctx.imageSmoothingEnabled = false
+    ctx.font = '22px Helvetica'
 // trying to make this clickable but I can only tab to it.
-    canvas.tabIndex = 1
+    // canvas.tabIndex = 1
 
 // setting canvasPosition for determining border collision, unsure so far
 // let canvasPosition = canvas.getBoundingClientRect()
@@ -66,20 +67,27 @@ window.onload = function() {
 // trying to incorporate these shorthands to control Player input speed, etc.
 let leftPressed = false
 let rightPressed = false
-// not rly doing anything
-canvas.addEventListener('mousedown', e => {
-    lastDownTarget = e.target
-})    
+// not rly doing anything   
 
 // this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
-canvas.addEventListener('keydown', e => {
-    if(e.key == 'a') {
-    leftPressed = true
-    }     
-    if(e.key == 'd') {
-    rightPressed = true
-    }    
-})
+document.addEventListener('keydown', inpHandle) 
+
+function inpHandle(e) {
+    // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
+    switch (e.keyCode) {
+        case (87):
+        player.y -= 25
+        break
+        case (65):
+        player.x -= 25
+        break
+        case (83):
+        player.y += 25
+        break
+        case (68):
+        player.x += 25
+    } 
+}
 
 // I want to make the game start screen be a dual-function pause/start screen, with p key for pause, start/restart for enter, shoot for m
 // for MVP I could just make start/pause buttons in HTML perhaps, but I'd rather incorporate these, and maybe even up down (w, s)
@@ -95,95 +103,104 @@ let score = 0
 // player toolings
 class Player {
     constructor (){
-        // consider hardcoding vs this approach
+        // consider hardcoding?
         this.x = 400
         this.y = 250
         this.radius = 125
         this.distance
-        // not using these (from fishgame) right now, might implement them later
-        // this.angle = 0
-        // this.frameX = 0
-        // this.frameY = 0
-        // this.frame = 0
-        // this.spriteWidth = 500
-        // this.spriteHeight = 500
+        // these below are all related to the sprite
+        this.angle = 0
+        this.frameX = 0
+        this.frameY = 0
+        this.frame = 0
+        this.spriteWidth = 500
+        this.spriteHeight = 500
+    }
+    update(){
+        const dx = this.x - player.x
+        const dy = this.y - player.y
+        let theta = Math.atan2(dy, dx)
+        this.angle = theta
+        if (player.x != this.x) {
+            this.x -= dx/30
+        }
+        if (player.y != this.y) {
+            this.y-= dy/30
+        }
     }
 
     draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        if(rightPressed) {
-            this.x += 1
-        }
-        if(leftPressed) {
-            this.x -= 1
-        }
         ctx.fillStyle = 'lightsalmon'
-        ctx.fillRect(this.x, this.y, this.radius, 125)
-        // attempt to add sprite to hitbox
-       // ctx.save()
-       // ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth, this.spriteHeight, 0, 0, this.spriteWidth/4, this.spriteHeight/4)
+        ctx.fillRect(this.x, this.y, this.radius, 110)
+        // attempt to add sprite to hitbox, need to line it up
+        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth/3.9, this.spriteHeight/3.9)
     }
 }
 // i think this just fires the Player function?
-const player = new Player(setInterval, 60)
+const player = new Player
 // enemy targets
 const minosArray = []
 // would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
-class Tetromino {
-    constructor(){
-        // implement ogre Crawler type situation for various block types
-        this.x = Math.random() * canvas.width
-        this.y = canvas.height + 100
-        this.speed = Math.random() * 1.8
-        this.radius = 125
-        this.distance
-        this.blasted = false
-    }
-    update(){
-        // is this working with player? idk
-        this.y -= this.speed
-        const dx = this.x 
-        const dy = this.y
-        this.distance = Math.sqrt(dx, dy)
+// need to implement canvas crawler here
+// class Tetromino {
+//     constructor(){
+//         // implement ogre Crawler type situation for various block types
+//         this.x = Math.random() * canvas.width
+//         this.y = canvas.height + 100
+//         this.radius = 100
+//         this.speed = Math.random() * 1.2 + 1
+//         this.distance
+//         this.blasted = false
+//     }
+//     update(){
+//         // is this working with player? idk
+//         this.y -= this.speed
+//         const dx = this.x 
+//         const dy = this.y 
+//         this.distance = Math.sqrt(dx*dx + dy*dy)
 
-    }
-    draw(){
-        ctx.fillStyle = 'slateblue'
-        // do i need beginPath closePath for
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.radius, 125)
-        ctx.closePath()
-        ctx.stroke()
-    }
-}
+//     }
+//     draw(){
+//         ctx.fillStyle = 'slateblue'
+//         // do i need beginPath closePath for
+//         ctx.beginPath()
+//         ctx.fillRect(this.x, this.y, this.radius, 125)
+//         ctx.closePath()
+//         ctx.stroke()
+//     }
+// }
 
 // push new Tetromino into a randomizer? Put the randomization into the Tetromino constructor?
 
 // this is copied from codealong, don't fully understand it just looking at it today.
+let frameSec = setInterval(blockFarm, 60)
 function blockFarm(){
-    let frameSec = setInterval(blockFarm, 600)
     // look up how to set this interval, or just use the game frames
-    if(frameSec % 100000 === 0){
+    if(frameSec.blockFarm % 100 === 0){
         minosArray.push(new Tetromino())
     }
-    for (let i = 0; i < minosArray.length; i++){
-        minosArray[i].update()
-        minosArray[i].draw()
-        // i dont really understand the radius and splice stuff
-        if(minosArray [i].y < 0 - minosArray[i].radius * 2){
-            minosArray.splice(i, 1)
-        }
-        // this makes sure the tetromino isn't already set to be deleted, a bugfix imported from the fish game, also checks if it's "blasted" which is just a collision detection for now. Need to implement shooting bullets but would like input and block gen first (can just be a dodge game at first)
-        if(minosArray[i]){
-            if(minosArray[i].distance < minosArray[i].radius + player.radius){
-                if(!minosArray[i].blasted){
-                    score++
-                    minosArray[i].blasted = true
-                    minosArray.splice(i, 1)
-                }
-            }
-        }    
-    }
+
+    // i dont get this stuff at all i will try to implement canvas crawler techniques
+
+    // for (let i = 0; i < minosArray.length; i++){
+    //     minosArray[i].update()
+    //     minosArray[i].draw()
+    //     // i dont really understand the radius and splice stuff
+    //     if(minosArray[i].y < 0 - minosArray[i].radius * 2){
+    //         minosArray.splice(i, 1)
+    //     }
+    //     // this makes sure the tetromino isn't already set to be deleted, a bugfix imported from the fish game, also checks if it's "blasted" which is just a collision detection for now. Need to implement shooting bullets but would like input and block gen first (can just be a dodge game at first)
+    //     if(minosArray[i]){
+    //         if(minosArray[i].distance < minosArray[i].radius + player.radius){
+    //             if(!minosArray[i].blasted){
+    //                 score++
+    //                 minosArray[i].blasted = true
+    //                 minosArray.splice(i, 1)
+    //             }
+    //         }
+    //     }    
+    // }
 }    
 
 
@@ -191,9 +208,10 @@ function blockFarm(){
 function animate(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     blockFarm()
+    player.update()
     player.draw()
     ctx.fillStyle = 'slategrey'
-    ctx.fillText('score : ' + score, 10, 50)
+    ctx.fillText('blocks blasted: ' + score, 799, 19)
     requestAnimationFrame(animate)
 }
 animate ()
