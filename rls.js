@@ -9,6 +9,9 @@ window.onload = function() {
     canvas.height = 563
     ctx.imageSmoothingEnabled = false
     ctx.font = '22px Helvetica'
+    let quad
+    let player 
+    let enemyTimer = 0
 // trying to make this clickable but I can only tab to it.
     // canvas.tabIndex = 1
 
@@ -72,20 +75,27 @@ let rightPressed = false
 // this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
 document.addEventListener('keydown', inpHandle) 
 
+//this is sort of working for now, i tried to fix it and ended up really angry
 function inpHandle(e) {
     // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
     switch (e.keyCode) {
         case (87):
-        player.y -= 25
+            player.y -= 12.5
         break
         case (65):
-        player.x -= 25
+            player.x -= 12.5
         break
         case (83):
-        player.y += 25
+            player.y += 12.5
         break
         case (68):
-        player.x += 25
+            player.x += 12.5
+        break
+        case (13):
+            ctx.clearRect(0, 0, canvas.width, canvas.height),
+            quad.blasted = true
+            score = 0,
+            player = new Player(400, 400, 'white', 100, 100)
     } 
 }
 
@@ -97,89 +107,116 @@ function inpHandle(e) {
 const playerPic = new Image()
 playerPic.src = 'speship-left.png'
 let score = 0
-// copied functionality for timing and things. Sometimes it doesn't work right with the block generation/appearing on screen. Using setInterval for frame control now
-// let gameFrame = 0
 
-// player toolings
+// player character
 class Player {
-    constructor (){
+    constructor (x, y, color, width, height){
         // consider hardcoding?
-        this.x = 400
-        this.y = 250
-        this.radius = 125
-        this.distance
+        this.x = x
+        this.y = y
+        this.color = color
+        this.width = width
+        this.height = height
         // these below are all related to the sprite
-        this.angle = 0
-        this.frameX = 0
-        this.frameY = 0
-        this.frame = 0
+        // this.angle = 0
+        // this.frameX = 0
+        // this.frameY = 0
+        // this.frame = 0
         this.spriteWidth = 500
         this.spriteHeight = 500
     }
-    update(){
-        const dx = this.x - player.x
-        const dy = this.y - player.y
-        let theta = Math.atan2(dy, dx)
-        this.angle = theta
-        if (player.x != this.x) {
-            this.x -= dx/30
-        }
-        if (player.y != this.y) {
-            this.y-= dy/30
-        }
-    }
-
-    draw(){
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = 'lightsalmon'
-        ctx.fillRect(this.x, this.y, this.radius, 110)
+    // some sort of triangulated distance function from fishgame
+    // update(){
+    //     const dx = this.x - player.x
+    //     const dy = this.y - player.y
+    //     let theta = Math.atan2(dy, dx)
+    //     this.angle = theta
+    //     if (player.x != this.x) {
+    //         this.x -= dx/30
+    //     }
+    //     if (player.y != this.y) {
+    //         this.y-= dy/30
+    //     }
+    render(){
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
         // attempt to add sprite to hitbox, need to line it up
-        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth/3.9, this.spriteHeight/3.9)
+        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth/4.7, this.spriteHeight/4.3)
     }
 }
-// i think this just fires the Player function?
-const player = new Player
+// i think this just fires the Player function? or lets me type player instead of Player?
+player = new Player(400, 400, 'white', 100, 100)
 // enemy targets
-const minosArray = []
 // would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
 // need to implement canvas crawler here
-// class Tetromino {
-//     constructor(){
 //         // implement ogre Crawler type situation for various block types
-//         this.x = Math.random() * canvas.width
-//         this.y = canvas.height + 100
-//         this.radius = 100
-//         this.speed = Math.random() * 1.2 + 1
-//         this.distance
-//         this.blasted = false
-//     }
-//     update(){
-//         // is this working with player? idk
-//         this.y -= this.speed
-//         const dx = this.x 
-//         const dy = this.y 
-//         this.distance = Math.sqrt(dx*dx + dy*dy)
+const minoArray = []
+class Tetromino {
+    constructor(x, y, color, width, height){
+        this.x = x
+        this.y = y
+        this.speed = 19
+        this.color = color
+        this.width = width
+        this.height = height
+        this.blasted = false
+    }
+    update(){
+        this.y -= this.speed
+        const dx = this.x - player.x
+        const dy = this.y - player.y
+        this.distance = Math.sqrt(dx*dx + dy*dy)
+    }
+    render() {
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+}
 
-//     }
-//     draw(){
-//         ctx.fillStyle = 'slateblue'
-//         // do i need beginPath closePath for
-//         ctx.beginPath()
-//         ctx.fillRect(this.x, this.y, this.radius, 125)
-//         ctx.closePath()
-//         ctx.stroke()
-//     }
-// }
+quad = new Tetromino(50, 600, 'pink', 100, 100)
+
+function minoSummon(){
+    if(enemyTimer % 60 == 0){
+        quad = new Tetromino(750, 600, 'pink', 100, 100)
+    }
+    }
+  
+
+
+setInterval(animate, 60)
+function animate(){
+    enemyTimer++
+    quad.update()
+    minoSummon()
+    if (!quad.blasted) {
+        detectHit()
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    player.render()
+    if (!quad.blasted) {
+    quad.render()
+    }
+    ctx.fillStyle = 'slategrey'
+    ctx.fillText('blocks blasted: ' + score, 799, 19)
+    ctx.fillText('press enter to restart', 795, 558)
+}
+
+function detectHit() {
+    // one big, confusing if:
+    if (
+        player.x + player.width >= quad.x &&
+        player.x <= quad.x + quad.width &&
+        player.y <= quad.y + quad.height &&
+        player.y + player.height >= quad.y
+        ) {
+          // do some game stuff!
+         quad.blasted = true
+         score++
+        }
+}
 
 // push new Tetromino into a randomizer? Put the randomization into the Tetromino constructor?
 
-// this is copied from codealong, don't fully understand it just looking at it today.
-let frameSec = setInterval(blockFarm, 60)
-function blockFarm(){
-    // look up how to set this interval, or just use the game frames
-    if(frameSec.blockFarm % 100 === 0){
-        minosArray.push(new Tetromino())
-    }
 
     // i dont get this stuff at all i will try to implement canvas crawler techniques
 
@@ -201,20 +238,10 @@ function blockFarm(){
     //         }
     //     }    
     // }
-}    
 
 
 // Canvas animation activation station
-function animate(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    blockFarm()
-    player.update()
-    player.draw()
-    ctx.fillStyle = 'slategrey'
-    ctx.fillText('blocks blasted: ' + score, 799, 19)
-    requestAnimationFrame(animate)
-}
-animate ()
+
 }
 
 /* general notes */
