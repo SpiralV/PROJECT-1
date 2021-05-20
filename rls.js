@@ -11,6 +11,7 @@ window.onload = function() {
     ctx.font = '22px Helvetica'
     let quad
     let player 
+    let shoot
     let enemyTimer = 0
 // trying to make this clickable but I can only tab to it.
     // canvas.tabIndex = 1
@@ -80,22 +81,26 @@ function inpHandle(e) {
     // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
     switch (e.keyCode) {
         case (87):
-            player.y -= 12.5
+            player.y -= 20
         break
         case (65):
-            player.x -= 12.5
+            player.x -= 20
         break
         case (83):
-            player.y += 12.5
+            player.y += 20
         break
         case (68):
-            player.x += 12.5
+            player.x += 20
         break
         case (13):
-            ctx.clearRect(0, 0, canvas.width, canvas.height),
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
             quad.blasted = true
-            score = 0,
-            player = new Player(400, 400, 'white', 100, 100)
+            score = 0
+            player = new Player(400, 100, 'white', 100, 100)
+        break
+        case (77):
+            shoot = new Shoot
+            shoot.render() 
     } 
 }
 
@@ -145,39 +150,50 @@ class Player {
     }
 }
 // i think this just fires the Player function? or lets me type player instead of Player?
-player = new Player(400, 400, 'white', 100, 100)
+player = new Player(400, 100, 'white', 100, 100)
 // enemy targets
 // would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
 // need to implement canvas crawler here
 //         // implement ogre Crawler type situation for various block types
+
+class Shoot {
+    constructor(){
+    this.x = player.x + 47
+    this.y = player.y + 50
+    this.speed = 30
+    this.width = 10
+    this.height = 10
+    }
+    render(){
+        this.y += this.speed
+        ctx.fillStyle = 'lightcoral'
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+}
+shoot = new Shoot
 const minoArray = []
 class Tetromino {
     constructor(x, y, color, width, height){
         this.x = x
         this.y = y
-        this.speed = 19
+        this.speed = 45
         this.color = color
         this.width = width
         this.height = height
         this.blasted = false
     }
-    update(){
-        this.y -= this.speed
-        const dx = this.x - player.x
-        const dy = this.y - player.y
-        this.distance = Math.sqrt(dx*dx + dy*dy)
-    }
     render() {
+        this.y -= this.speed
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
 
-quad = new Tetromino(50, 600, 'pink', 100, 100)
+quad = new Tetromino(50, 600, 'lightblue', 100, 400)
 
 function minoSummon(){
     if(enemyTimer % 60 == 0){
-        quad = new Tetromino(750, 600, 'pink', 100, 100)
+        quad = new Tetromino(Math.random() * (canvas.width - 250), 600, 'pink', 400, 400)
     }
     }
   
@@ -186,7 +202,6 @@ function minoSummon(){
 setInterval(animate, 60)
 function animate(){
     enemyTimer++
-    quad.update()
     minoSummon()
     if (!quad.blasted) {
         detectHit()
