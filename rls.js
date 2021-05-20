@@ -16,14 +16,13 @@ window.onload = function() {
     let score = 0
     const playerPic = new Image()
     playerPic.src = 'speship-left.png'
-// trying to make this clickable but I can only tab to it.
-    // canvas.tabIndex = 1
+
 
 // setting canvasPosition for determining border collision, unsure so far
 // let canvasPosition = canvas.getBoundingClientRect()
 
-/* input zone */
 
+/* input variants 
 // several attempts at inputs. Current solution has bugs, but most effective so far
 // some random combination for inputs that worked for someone, "which" is outdated?
 // // update -- deleted outdated terminology
@@ -68,18 +67,14 @@ window.onload = function() {
 //         console.log('right')
 //     }
 // }
+ */
+
 
 /* input current solve */
-
-// trying to incorporate these shorthands to control Player input speed, etc.
-let leftPressed = false
-let rightPressed = false
-// not rly doing anything   
-
 // this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
 document.addEventListener('keydown', inpHandle) 
 
-//this is sort of working for now, i tried to fix it and ended up really angry
+//this is sort of working for now, not how I would like it to work
 function inpHandle(e) {
     // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
     switch (e.keyCode) {
@@ -104,12 +99,12 @@ function inpHandle(e) {
         break
         case (77):
             shoot.render()
+            if(shoot.y < 600){
+                shoot.update()
+            } else {shoot.y = player.y + 50, shoot.x = player.x + 47}
         break 
     } 
 }
-
-// these could probably go up top but I'm unsure about them for now
-
 
 // player character
 class Player {
@@ -149,11 +144,8 @@ class Player {
 }
 // i think this just fires the Player function? or lets me type player instead of Player?
 player = new Player(400, 100, 'white', 100, 100)
-// enemy targets
-// would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
-// need to implement canvas crawler here
-//         // implement ogre Crawler type situation for various block types
 
+// bullet
 class Shoot {
     constructor(){
     this.x = player.x + 47
@@ -161,6 +153,8 @@ class Shoot {
     this.speed = 25
     this.width = 10
     this.height = 10
+    }
+    update(){
     this.y += this.speed
     }
     render(){
@@ -169,6 +163,11 @@ class Shoot {
     }
 }
 shoot = new Shoot
+
+// enemy targets
+// would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
+// need to implement canvas crawler here
+//         // implement ogre Crawler type situation for various block types
 const minoArray = []
 class Tetromino {
     constructor(x, y, color, width, height){
@@ -189,6 +188,7 @@ class Tetromino {
 
 quad = new Tetromino(50, 600, 'lightblue', 100, 400)
 
+// randomize block type and spawn location, currently just one block
 function minoSummon(){
     if(enemyTimer % 60 == 0){
         quad = new Tetromino(Math.random() * (canvas.width - 250), 600, 'pink', 400, 400)
@@ -196,8 +196,10 @@ function minoSummon(){
     }
   
 
-
+// overall timing control for my game
 setInterval(animate, 60)
+
+// canvas slate and render functions
 function animate(){
     enemyTimer++
     minoSummon()
@@ -219,6 +221,7 @@ function animate(){
     ctx.fillText('press enter to restart', 795, 558)
 }
 
+// imported from ogre game, will add a bullet 
 function detectHit() {
     // one big, confusing if:
     if (
@@ -229,10 +232,12 @@ function detectHit() {
         ) {
           // do some game stuff!
          quad.blasted = true
-         score++
+         score + 4
         }
 }
+}
 
+/* notes about potential clearing of bullets or blocks, from fishgame
 // push new Tetromino into a randomizer? Put the randomization into the Tetromino constructor?
 
 
@@ -261,9 +266,29 @@ function detectHit() {
 // Canvas animation activation station
 
 }
+*/
 
-/* general notes */
+////// /!\ stretch goals /!\ \\\\\\
+// blocks take 4 hits to destroy, scroll speeds balanced accordingly
+// scroll illusion
+// style everything better
+// for example, blocks have hitbars or visually represent life status via each block lighting up or dimming preferably at random
+// ie. major spritework
+// sound effects
+// background music (toggle button)
+// full grid movement or mouse movement
+// snap blocks into tetris formats and fall/rise in grid patterns only
+// score numerical styling based on tetris
+// scoring based on dodging straight bars specifically
+// high score leaderboard + initials entry
+// additional menu option considerations and css stylings to facilitate game modes/window focus
+// convoluted 1P endless mode with levels akin to tetris, and lives upon hi-score thresholds
+// convoluted 2P co-op mode where other player plays tetris, and the scoring is based on multiple bar types
+// easter egg to unlock tempest view mode, and extremely convoluted 1p mode
+// extremely convoluted 1P mode where blocks have elements and attacks + buffs/debuffs
+// extremely convoluted 1P mode has convoluted plotline about humanity 
 
+/* original set of notes, not updated 
 // TODO basic js setup -- see fishgame(js-2dgame-yt) for help, dont be afraid to google
 //    note - google left right space enter inputs for canvas, implement them instead of mouse input, because mouse input is wtf for now
 // TODO player movement and shoot buttons
@@ -274,7 +299,7 @@ function detectHit() {
 // TODO reconsider tetris shapes (pending further review of hitboxes)
 
 
-/* original pseudocode pieces
+// original pseudocode pieces
 
 ///// not quite answered yet
 dont forget to google codepen vertshoot game
@@ -298,23 +323,3 @@ check out canvas - definitely done
 
 
 */
-
-////// /!\ stretch goals /!\ \\\\\\
-// blocks take 4 hits to destroy, scroll speeds balanced accordingly
-// scroll illusion
-// style everything better
-// for example, blocks have hitbars or visually represent life status via each block lighting up or dimming preferably at random
-// ie. major spritework
-// sound effects
-// background music (toggle button)
-// full grid movement or mouse movement
-// snap blocks into tetris formats and fall/rise in grid patterns only
-// score numerical styling based on tetris
-// scoring based on dodging straight bars specifically
-// high score leaderboard + initials entry
-// additional menu option considerations and css stylings to facilitate game modes/window focus
-// convoluted 1P endless mode with levels akin to tetris, and lives upon hi-score thresholds
-// convoluted 2P co-op mode where other player plays tetris, and the scoring is based on multiple bar types
-// easter egg to unlock tempest view mode, and extremely convoluted 1p mode
-// extremely convoluted 1P mode where blocks have elements and attacks + buffs/debuffs
-// extremely convoluted 1P mode has convoluted plotline about humanity 
