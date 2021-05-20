@@ -95,7 +95,7 @@ function inpHandle(e) {
             quad.blasted = true
             score = 0
             enemyTimer = 0
-            player = new Player(400, 100, 'white', 100, 100)
+            player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
         break
         case (77):
             shoot.render()
@@ -143,7 +143,7 @@ class Player {
     }
 }
 // i think this just fires the Player function? or lets me type player instead of Player?
-player = new Player(400, 100, 'white', 100, 100)
+player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
 
 // bullet
 class Shoot {
@@ -158,8 +158,12 @@ class Shoot {
     this.y += this.speed
     }
     render(){
-        ctx.fillStyle = 'lightcoral'
-        ctx.fillRect(this.x, this.y, this.width, this.height)
+        ctx.fillStyle = 'limegreen'
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, this.width, this.height, Math.PI * 2)
+        ctx.fill()
+        ctx.closePath()
+        ctx.stroke()
     }
 }
 shoot = new Shoot
@@ -191,7 +195,7 @@ quad = new Tetromino(50, 600, 'lightblue', 100, 400)
 // randomize block type and spawn location, currently just one block
 function minoSummon(){
     if(enemyTimer % 60 == 0){
-        quad = new Tetromino(Math.random() * (canvas.width - 250), 600, 'pink', 400, 400)
+        quad = new Tetromino(Math.random() * (canvas.width - 250), 600, 'rgba(104, 39, 39, 0.8)', 400, 400)
     }
     }
   
@@ -213,9 +217,10 @@ function animate(){
     }
     ctx.fillStyle = 'slategrey'
     ctx.fillText('blocks blasted: ' + score, 799, 19)
-    if(enemyTimer < 180){
+    // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
+    if(enemyTimer < 210){
     ctx.fillText('use WASD for arrow keys', 100, 138)
-    ctx.fillText('dodge blue, shoot pink', 100, 158)
+    ctx.fillText('dodge blue, shoot red', 100, 158)
     ctx.fillText('press M to shoot!', 100, 178)
     }
     ctx.fillText('press enter to restart', 795, 558)
@@ -232,7 +237,7 @@ function detectHit() {
         ) {
           // do some game stuff!
          quad.blasted = true
-         score + 4
+         score += 4
         }
 }
 }
