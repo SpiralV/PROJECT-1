@@ -6,10 +6,11 @@ window.onload = function() {
     const ctx = canvas.getContext('2d')
     // setting attributes (is css redundant?)
     canvas.width = 1000
-    canvas.height = 563
-    ctx.imageSmoothingEnabled = false
+    canvas.height = 550
+    // ctx.imageSmoothingEnabled = false
     ctx.font = '22px Helvetica'
     let quad
+    let slab
     let player 
     let shoot
     let enemyTimer = 0
@@ -72,23 +73,35 @@ window.onload = function() {
 
 /* input current solve */
 // this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
-document.addEventListener('keydown', inpHandle) 
-
+addEventListener('keydown', inpHandle) 
+// addEventListener('keyup', shooTest)
 //this is sort of working for now, not how I would like it to work
 function inpHandle(e) {
     // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
     switch (e.keyCode) {
         case (87):
-            player.y -= 20
+            player.y -= 25
+            if(player.y == -25){
+                player.y += 25
+            }
         break
         case (65):
-            player.x -= 20
+            player.x -= 25
+            if(player.x == -25){
+                player.x += 25
+            }
         break
         case (83):
-            player.y += 20
+            player.y += 25
+            if(player.y == 450){
+                player.y -= 25
+            }
         break
         case (68):
-            player.x += 20
+            player.x += 25
+            if(player.x == 925){
+                player.x -= 25
+            }
         break
         case (13):
             ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -98,14 +111,17 @@ function inpHandle(e) {
             player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
         break
         case (77):
-            shoot.render()
-            if(shoot.y < 600){
-                shoot.update()
-            } else {shoot.y = player.y + 50, shoot.x = player.x + 47}
-        break 
+            shoot = new Shoot(player.x + 52, player.y + 55, 10, 'limegreen', 25)
+            shoot.render() 
+        break
     } 
 }
-
+// function shooTest(e) {
+//     switch(e.keyCode) {
+//         case (77):
+//         shoot.update()
+//     }
+// }
 // player character
 class Player {
     constructor (x, y, color, width, height){
@@ -123,6 +139,10 @@ class Player {
         this.spriteWidth = 500
         this.spriteHeight = 500
     }
+    // edgeChek(){
+    //     if(x )
+    // }
+
     // some sort of triangulated distance function from fishgame
     // update(){
     //     const dx = this.x - player.x
@@ -145,28 +165,30 @@ class Player {
 // i think this just fires the Player function? or lets me type player instead of Player?
 player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
 
+
 // bullet
+const shots = []
 class Shoot {
-    constructor(){
-    this.x = player.x + 47
-    this.y = player.y + 50
-    this.speed = 25
-    this.width = 10
-    this.height = 10
-    }
-    update(){
-    this.y += this.speed
+    constructor(x, y, radius, color, speed){
+        this.x = x
+        this.y = y
+        this.radius = radius
+        this.color = color
+        this.speed = speed
     }
     render(){
-        ctx.fillStyle = 'limegreen'
         ctx.beginPath()
-        ctx.arc(this.x, this.y, this.width, this.height, Math.PI * 2)
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+        ctx.fillStyle = this.color
         ctx.fill()
-        ctx.closePath()
+        ctx.strokeStyle = 'yellow'
         ctx.stroke()
     }
+    update(){
+        this.render()
+        this.y += 25
+    }
 }
-shoot = new Shoot
 
 // enemy targets
 // would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
@@ -177,11 +199,13 @@ class Tetromino {
     constructor(x, y, color, width, height){
         this.x = x
         this.y = y
-        this.speed = 45
+        this.speed = 50
         this.color = color
         this.width = width
         this.height = height
         this.blasted = false
+        this.crashed = false
+        this.passed = false
     }
     render() {
         this.y -= this.speed
@@ -190,7 +214,7 @@ class Tetromino {
     }
 }
 
-quad = new Tetromino(50, 600, 'lightblue', 100, 400)
+slab = new Tetromino(50, 600, 'lightblue', 100, 400)
 
 // randomize block type and spawn location, currently just one block
 function minoSummon(){
@@ -206,28 +230,37 @@ setInterval(animate, 60)
 // canvas slate and render functions
 function animate(){
     enemyTimer++
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     minoSummon()
-    if (!quad.blasted) {
+    if (!quad.crashed) {
         detectHit()
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    if (!slab.passed){
+    slab.render()
+    }
     player.render()
-    if (!quad.blasted) {
+    if (!quad.crashed) {
     quad.render()
     }
+    if (slab.passed) {
+        score += 4
+    }
     ctx.fillStyle = 'slategrey'
-    ctx.fillText('blocks blasted: ' + score, 799, 19)
+    ctx.fillText('blocks passed: ' + score, 799, 19)
     // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
     if(enemyTimer < 210){
     ctx.fillText('use WASD for arrow keys', 100, 138)
     ctx.fillText('dodge blue, shoot red', 100, 158)
     ctx.fillText('press M to shoot!', 100, 178)
     }
-    ctx.fillText('press enter to restart', 795, 558)
+    ctx.fillText('press enter to restart', 795, 545)
 }
 
 // imported from ogre game, will add a bullet 
 function detectHit() {
+    if(quad.y == 0 || slab.y == 0) {
+        score += 4
+    }
     // one big, confusing if:
     if (
         player.x + player.width >= quad.x &&
@@ -236,8 +269,10 @@ function detectHit() {
         player.y + player.height >= quad.y
         ) {
           // do some game stuff!
-         quad.blasted = true
-         score += 4
+         quad.crashed = true
+         score = 0
+         clearInterval(animate)
+         ctx.fillText('You crashed! Press enter to retry!', 250, 500)
         }
 }
 }
