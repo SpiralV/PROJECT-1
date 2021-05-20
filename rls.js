@@ -13,6 +13,9 @@ window.onload = function() {
     let player 
     let shoot
     let enemyTimer = 0
+    let score = 0
+    const playerPic = new Image()
+    playerPic.src = 'speship-left.png'
 // trying to make this clickable but I can only tab to it.
     // canvas.tabIndex = 1
 
@@ -96,22 +99,17 @@ function inpHandle(e) {
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             quad.blasted = true
             score = 0
+            enemyTimer = 0
             player = new Player(400, 100, 'white', 100, 100)
         break
         case (77):
-            shoot = new Shoot
-            shoot.render() 
+            shoot.render()
+        break 
     } 
 }
 
-// I want to make the game start screen be a dual-function pause/start screen, with p key for pause, start/restart for enter, shoot for m
-// for MVP I could just make start/pause buttons in HTML perhaps, but I'd rather incorporate these, and maybe even up down (w, s)
-
-
 // these could probably go up top but I'm unsure about them for now
-const playerPic = new Image()
-playerPic.src = 'speship-left.png'
-let score = 0
+
 
 // player character
 class Player {
@@ -160,12 +158,12 @@ class Shoot {
     constructor(){
     this.x = player.x + 47
     this.y = player.y + 50
-    this.speed = 30
+    this.speed = 25
     this.width = 10
     this.height = 10
+    this.y += this.speed
     }
     render(){
-        this.y += this.speed
         ctx.fillStyle = 'lightcoral'
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
@@ -213,6 +211,11 @@ function animate(){
     }
     ctx.fillStyle = 'slategrey'
     ctx.fillText('blocks blasted: ' + score, 799, 19)
+    if(enemyTimer < 180){
+    ctx.fillText('use WASD for arrow keys', 100, 138)
+    ctx.fillText('dodge blue, shoot pink', 100, 158)
+    ctx.fillText('press M to shoot!', 100, 178)
+    }
     ctx.fillText('press enter to restart', 795, 558)
 }
 
