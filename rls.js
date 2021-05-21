@@ -200,7 +200,40 @@ function minoSummon(){
         slab = new Tetromino(Math.random() * (canvas.width - 300), 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
     }
 }
+ 
+// experimental backfield
+function Star(x, y) {
+    var r = Math.max(50,Math.floor(Math.random()*256));
+    var g = Math.max(125, Math.floor(Math.random()*256));
+    var b = Math.max(240, Math.floor(Math.random()*256));
+    this.x = Math.floor(x);
+    this.y = Math.floor(y);
+    let size = Math.floor(Math.random() * Star.MAX_SIZE);
+    this.width = size;
+    this.height = size;
+    this.variance = Math.max(Math.random(), .2);
+    this.color = 'rgb('+r+', '+g+', '+b+')';
+  }
   
+  Star.SPEED = 5;
+  Star.MAX_SIZE = 2;
+  Star.update = function() {
+
+      this.travel = Star.SPEED*this.variance;
+      this.width = this.height;
+    }
+    this.x -= this.travel;
+    if(this.x + this.width < 0) {
+      this.x = canvas.width;
+    }
+    for (var i = 0; i < 1024; i++) {
+      this.starField.push(
+        new Star(
+          Math.random()*canvas.width,
+          Math.random()*canvas.height
+        )
+      );
+    }
 
 // overall timing control 
 
@@ -223,6 +256,18 @@ function animate(){
     ctx.fillText('dodged', 100, 178)
     }
     ctx.fillText('press enter to restart', 795, 545)
+    this.starField.forEach(function(star) {
+        star.update();
+        star.render(context);
+      })
+    for (let i = 0; i < 1024; i++) {
+        this.starField.push(
+          new Star(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height
+          )
+        )
+    }    
 }
 
 // detection dimensions imported from canvas crawler, game over functionality
@@ -266,7 +311,10 @@ function detectHit() {
         clearInterval(frameSec)
     }
 }
+
+
 }
+// Comments Graveyard //
 
 /* input variants 
 // several attempts at inputs. Current solution has bugs, but most effective so far
