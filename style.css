@@ -14,8 +14,8 @@ body {
 #canvas1 {
     width: 1000px;
     height: 550px;
-    border: 3px solid rgb(104, 39, 39);
-    background-color: black;
+    border: 3px solid lightpink;
+    background-color: rgb(12, 2, 12);
 }
 
 #copyrite {
@@ -31,8 +31,9 @@ body {
 h2 {
     position: absolute;
     top: 0.5%;
-    right: 45%;
+    right: 40%;
     text-align: center;
     color: lightpink;
     font-family: 'OCR A Std', monospace;
+    font-size: 44px;
 }

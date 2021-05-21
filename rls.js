@@ -77,8 +77,8 @@ function inpHandle(e) {
             score = 0
             enemyTimer = 0
             player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
-            slab = new Tetromino(50, 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
-            quad = new Tetromino(700, 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
+            slab = new Tetromino(50, 600, '#a1edd1', 100, 300)
+            quad = new Tetromino(700, 600, '#a1a2ed', 200, 200)
         break
 
         // experimental bullet functionality
@@ -188,16 +188,16 @@ class Tetromino {
 }
 
 // just to get game to function on tick 1 idk why
-slab = new Tetromino(50, 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
-quad = new Tetromino(700, 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
+slab = new Tetromino(50, 600, '#a1edd1', 100, 300)
+quad = new Tetromino(700, 600, '#a1a2ed', 200, 200)
 
 // randomize block type and spawn location
 function minoSummon(){
     if(enemyTimer % 60 == 0){
-        quad = new Tetromino(Math.random() * (canvas.width - 50), 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
+        quad = new Tetromino(Math.random() * (canvas.width - 50), 600, '#a1a2ed', 200, 200)
     }
     if(enemyTimer % 150 == 0){
-        slab = new Tetromino(Math.random() * (canvas.width - 300), 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
+        slab = new Tetromino(Math.random() * (canvas.width - 300), 600, '#a1edd1', 100, 300)
     }
 }
   
@@ -214,20 +214,26 @@ function animate(){
     slab.render()
     player.render()
     detectHit()
-    ctx.fillStyle = '#bada55'
-    ctx.fillText('blocks passed: ' + score, 799, 19)
+    ctx.fillStyle = 'rgb(253, 226, 229)'
+    ctx.fillText('I blocks passed: ' + score, 799, 19)
     // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
     if(enemyTimer < 120){
-    ctx.fillText('use WASD for arrow keys.', 100, 138)
-    ctx.fillText('dodge the Tetrominos.', 100, 158)
-    ctx.fillText('dodged', 100, 178)
+        ctx.strokeStyle = 'lightpink'
+        ctx.fillStyle = 'rgb(253, 226, 229)'
+        ctx.strokeText('WASD steers your vessel.', 500, 138)
+        ctx.fillText('WASD steers your vessel.', 500, 138)
+        ctx.strokeText('steer around Tetromino blocks. ', 500, 158)
+        ctx.fillText('steer around Tetromino blocks. ', 500, 158)
+        ctx.strokeText('flying past I blocks give 4 points.', 500, 178)
+        ctx.fillText('flying past I blocks give 4 points.', 500, 178)
     }
+    ctx.fillStyle = 'rgb(253, 226, 229)'
     ctx.fillText('press enter to restart', 795, 545)
 }
 
 // detection dimensions imported from canvas crawler, game over functionality
 function detectHit() {
-    if(slab.y == 0) {
+    if(slab.y == -200) {
         score += 4
     }
     // canvas crawler hit detection solve
@@ -254,15 +260,15 @@ function detectHit() {
     if(slab.crashed){
         slab.crashed = false
         crashed.play()
-        ctx.fillStyle = 'lightpink'
-        ctx.fillText('You crashed! Press enter to retry!', 300, 400)
+        ctx.fillStyle = 'rgb(253, 226, 229)'
+        ctx.fillText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
     if(quad.crashed){
         quad.crashed = false
         crashed.play()
-        ctx.fillStyle = 'lightpink'
-        ctx.fillText('You crashed! Press enter to retry!', 300, 250)
+        ctx.fillStyle = 'rgb(253, 226, 229)'
+        ctx.fillText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
 }
