@@ -19,9 +19,235 @@ window.onload = function() {
     playerPic.src = 'speship-left.png'
 
 
-// setting canvasPosition for determining border collision, unsure so far
-// let canvasPosition = canvas.getBoundingClientRect()
 
+/* input current solve */
+// this is scanning for all key presses, with inpHandle wiring specific keys
+addEventListener('keydown', inpHandle) 
+
+//this is sort of working for now, not how I would like it to work
+function inpHandle(e) {
+    // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
+    switch (e.keyCode) {
+        // 'w' y-=
+        case (87):
+            player.y -= 25
+            if(player.y == -25){
+                player.y += 25
+            }
+        break
+        // 'a' x-=
+        case (65):
+            player.x -= 25
+            if(player.x == -25){
+                player.x += 25
+            }
+        break
+        // 's' y+=
+        case (83):
+            player.y += 25
+            if(player.y == 450){
+                player.y -= 25
+            }
+        break
+        // 'd' x+=
+        case (68):
+            player.x += 25
+            if(player.x == 925){
+                player.x -= 25
+            }
+        break
+        // 'Enter' - reset function, potential for refactor 
+        case (13):
+            setInterval(frameSec, 60)
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            slab.crashed = false
+            quad.crashed = false
+            score = 0
+            enemyTimer = 0
+            player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
+        break
+
+        // experimental bullet functionality
+        // case (77):
+        //     shoot = new Shoot(player.x + 52, player.y + 55, 10, 'limegreen', 25)
+        //     shoot.render() 
+        // break
+    } 
+}
+
+// experimental bullet functionality
+// function shooTest(e) {
+//     switch(e.keyCode) {
+//         case (77):
+//         shoot.update()
+//     }
+// }
+
+// playable character control center
+class Player {
+    constructor (x, y, color, width, height){
+        // consider hardcoding?
+        this.x = x
+        this.y = y
+        this.color = color
+        this.width = width
+        this.height = height
+        // these below are all related to the sprite
+        // this.angle = 0
+        // this.frameX = 0
+        // this.frameY = 0
+        // this.frame = 0
+        this.spriteWidth = 500
+        this.spriteHeight = 500
+    }
+    // edgeChek(){
+    //     if(x )
+    // }
+
+    // some sort of triangulated distance function from fishgame
+    // update(){
+    //     const dx = this.x - player.x
+    //     const dy = this.y - player.y
+    //     let theta = Math.atan2(dy, dx)
+    //     this.angle = theta
+    //     if (player.x != this.x) {
+    //         this.x -= dx/30
+    //     }
+    //     if (player.y != this.y) {
+    //         this.y-= dy/30
+    //     }
+    render(){
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+        // attempt to add sprite to hitbox, need to line it up
+        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth/4.7, this.spriteHeight/4.3)
+    }
+}
+
+// This initializes the first instance of the game
+player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
+
+/* bullet functionality, experimental for now
+// const shots = []
+// class Shoot {
+//     constructor(x, y, radius, color, speed){
+//         this.x = x
+//         this.y = y
+//         this.radius = radius
+//         this.color = color
+//         this.speed = speed
+//     }
+//     render(){
+//         ctx.beginPath()
+//         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+//         ctx.fillStyle = this.color
+//         ctx.fill()
+//         ctx.strokeStyle = 'yellow'
+//         ctx.stroke()
+//     }
+//     update(){
+//         this.render()
+//         this.y += 25
+//     }
+// }
+*/
+
+// 
+// const minoArray = []
+class Tetromino {
+    constructor(x, y, color, width, height){
+        this.x = x
+        this.y = y
+        this.speed = 25
+        this.color = color
+        this.width = width
+        this.height = height
+        this.blasted = false
+        this.crashed = false
+        this.passed = false
+    }
+    render() {
+        this.y -= this.speed
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+}
+
+// just to get game to function on tick 1 idk why
+slab = new Tetromino(50, 600, 'rgba(140, 140, 220, 0.8)', 100, 300)
+quad = new Tetromino(700, 600, 'rgba(104, 39, 39, 0.8)', 200, 200)
+
+// randomize block type and spawn location
+function minoSummon(){
+    if(enemyTimer % 60 == 0){
+        quad = new Tetromino(Math.random() * (canvas.width - 50), 600, 'rgba(104, 39, 39, 0.8)', 200, 200)
+    }
+    if(enemyTimer % 150 == 0){
+        slab = new Tetromino(Math.random() * (canvas.width - 300), 600, 'rgba(39, 39, 104, 0.8)', 100, 300)
+    }
+}
+  
+
+// overall timing control 
+let frameSec = setInterval(animate, 60)
+
+// sets animations and text fields within game window
+function animate(){
+    enemyTimer++
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    minoSummon()
+    quad.render()
+    slab.render()
+    player.render()
+    if (!quad.crashed) {
+        detectHit()
+    }
+    if(!slab.crashed) {
+        detectHit()
+    }
+    ctx.fillStyle = 'slategrey'
+    ctx.fillText('blocks passed: ' + score, 799, 19)
+    // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
+    if(enemyTimer < 120){
+    ctx.fillText('use WASD for arrow keys.', 100, 138)
+    ctx.fillText('dodge the Tetrominos!', 100, 158)
+    ctx.fillText('pass line bars for points!', 100, 178)
+    }
+    ctx.fillText('press enter to restart', 795, 545)
+}
+
+// detection dimensions imported from canvas crawler, game over functionality
+function detectHit() {
+    if(slab.y == 0) {
+        score += 4
+    }
+    // canvas crawler hit detection solve
+    if (
+        player.x + player.width >= quad.x &&
+        player.x <= quad.x + quad.width &&
+        player.y <= quad.y + quad.height &&
+        player.y + player.height >= quad.y
+        ) {
+         quad.crashed = true
+        }
+    
+    // refactor potential here, unsure best course of actiond
+    if (
+        player.x + player.width >= slab.x &&
+        player.x <= slab.x + slab.width &&
+        player.y <= slab.y + slab.height &&
+        player.y + player.height >= slab.y
+        ) {
+         slab.crashed = true
+        }
+    if(slab.crashed){
+        ctx.fillText('You crashed! Press enter to retry!', 250, 500)
+    }
+    if(quad.crashed){
+        ctx.fillText('You crashed! Press enter to retry!', 250, 500)
+    }
+}
+}
 
 /* input variants 
 // several attempts at inputs. Current solution has bugs, but most effective so far
@@ -69,213 +295,6 @@ window.onload = function() {
 //     }
 // }
  */
-
-
-/* input current solve */
-// this is scanning for all key presses, and my attempt to select the specific ones in this case didn't work. I think I am missing a keyup element but I don't know how to implement it. 
-addEventListener('keydown', inpHandle) 
-// addEventListener('keyup', shooTest)
-//this is sort of working for now, not how I would like it to work
-function inpHandle(e) {
-    // up (w:87): y-=1; left (a:65): x-=1; down (s:83): y+=1; right (d:68): x+=1
-    switch (e.keyCode) {
-        case (87):
-            player.y -= 25
-            if(player.y == -25){
-                player.y += 25
-            }
-        break
-        case (65):
-            player.x -= 25
-            if(player.x == -25){
-                player.x += 25
-            }
-        break
-        case (83):
-            player.y += 25
-            if(player.y == 450){
-                player.y -= 25
-            }
-        break
-        case (68):
-            player.x += 25
-            if(player.x == 925){
-                player.x -= 25
-            }
-        break
-        case (13):
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            quad.blasted = true
-            score = 0
-            enemyTimer = 0
-            player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
-        break
-        case (77):
-            shoot = new Shoot(player.x + 52, player.y + 55, 10, 'limegreen', 25)
-            shoot.render() 
-        break
-    } 
-}
-// function shooTest(e) {
-//     switch(e.keyCode) {
-//         case (77):
-//         shoot.update()
-//     }
-// }
-// player character
-class Player {
-    constructor (x, y, color, width, height){
-        // consider hardcoding?
-        this.x = x
-        this.y = y
-        this.color = color
-        this.width = width
-        this.height = height
-        // these below are all related to the sprite
-        // this.angle = 0
-        // this.frameX = 0
-        // this.frameY = 0
-        // this.frame = 0
-        this.spriteWidth = 500
-        this.spriteHeight = 500
-    }
-    // edgeChek(){
-    //     if(x )
-    // }
-
-    // some sort of triangulated distance function from fishgame
-    // update(){
-    //     const dx = this.x - player.x
-    //     const dy = this.y - player.y
-    //     let theta = Math.atan2(dy, dx)
-    //     this.angle = theta
-    //     if (player.x != this.x) {
-    //         this.x -= dx/30
-    //     }
-    //     if (player.y != this.y) {
-    //         this.y-= dy/30
-    //     }
-    render(){
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
-        // attempt to add sprite to hitbox, need to line it up
-        ctx.drawImage(playerPic, this.x, this.y, this.spriteWidth/4.7, this.spriteHeight/4.3)
-    }
-}
-// i think this just fires the Player function? or lets me type player instead of Player?
-player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
-
-
-// bullet
-const shots = []
-class Shoot {
-    constructor(x, y, radius, color, speed){
-        this.x = x
-        this.y = y
-        this.radius = radius
-        this.color = color
-        this.speed = speed
-    }
-    render(){
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-        ctx.fillStyle = this.color
-        ctx.fill()
-        ctx.strokeStyle = 'yellow'
-        ctx.stroke()
-    }
-    update(){
-        this.render()
-        this.y += 25
-    }
-}
-
-// enemy targets
-// would like to set blocks in groups of four, tetromino shapes, change hit box to morph to block shape, or have them assemble in random groups of four, unsure, might just go for square(shoot) and bar(let pass) blocks
-// need to implement canvas crawler here
-//         // implement ogre Crawler type situation for various block types
-const minoArray = []
-class Tetromino {
-    constructor(x, y, color, width, height){
-        this.x = x
-        this.y = y
-        this.speed = 50
-        this.color = color
-        this.width = width
-        this.height = height
-        this.blasted = false
-        this.crashed = false
-        this.passed = false
-    }
-    render() {
-        this.y -= this.speed
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
-    }
-}
-
-slab = new Tetromino(50, 600, 'lightblue', 100, 400)
-
-// randomize block type and spawn location, currently just one block
-function minoSummon(){
-    if(enemyTimer % 60 == 0){
-        quad = new Tetromino(Math.random() * (canvas.width - 250), 600, 'rgba(104, 39, 39, 0.8)', 400, 400)
-    }
-    }
-  
-
-// overall timing control for my game
-setInterval(animate, 60)
-
-// canvas slate and render functions
-function animate(){
-    enemyTimer++
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    minoSummon()
-    if (!quad.crashed) {
-        detectHit()
-    }
-    if (!slab.passed){
-    slab.render()
-    }
-    player.render()
-    if (!quad.crashed) {
-    quad.render()
-    }
-    if (slab.passed) {
-        score += 4
-    }
-    ctx.fillStyle = 'slategrey'
-    ctx.fillText('blocks passed: ' + score, 799, 19)
-    // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
-    if(enemyTimer < 210){
-    ctx.fillText('use WASD for arrow keys', 100, 138)
-    ctx.fillText('dodge blue, shoot red', 100, 158)
-    ctx.fillText('press M to shoot!', 100, 178)
-    }
-    ctx.fillText('press enter to restart', 795, 545)
-}
-
-// imported from ogre game, will add a bullet 
-function detectHit() {
-    if(quad.y == 0 || slab.y == 0) {
-        score += 4
-    }
-    // one big, confusing if:
-    if (
-        player.x + player.width >= quad.x &&
-        player.x <= quad.x + quad.width &&
-        player.y <= quad.y + quad.height &&
-        player.y + player.height >= quad.y
-        ) {
-          // do some game stuff!
-         quad.crashed = true
-         score = 0
-         clearInterval(animate)
-         ctx.fillText('You crashed! Press enter to retry!', 250, 500)
-        }
-}
-}
 
 /* notes about potential clearing of bullets or blocks, from fishgame
 // push new Tetromino into a randomizer? Put the randomization into the Tetromino constructor?
