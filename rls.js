@@ -24,7 +24,7 @@ window.onload = function() {
     staato.src = 'sfx/Item2A_3.wav'
     const bompin = document.createElement('audio')
     bompin.src = 'sfx/maybe-border-sound.wav'
-
+    staato.play()
 
 /* input current solve */
 // this is scanning for all key presses, with inpHandle wiring specific keys
@@ -89,13 +89,13 @@ function inpHandle(e) {
     } 
 }
 
-// experimental bullet functionality
+/* experimental bullet functionality
 // function shooTest(e) {
 //     switch(e.keyCode) {
 //         case (77):
 //         shoot.update()
 //     }
-// }
+// } */
 
 // playable character control center
 class Player {
@@ -219,15 +219,15 @@ function animate(){
     // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
     if(enemyTimer < 120){
         ctx.strokeStyle = 'lightpink'
-        ctx.fillStyle = 'rgb(253, 226, 229)'
-        ctx.strokeText('WASD steers your vessel.', 500, 138)
-        ctx.fillText('WASD steers your vessel.', 500, 138)
-        ctx.strokeText('steer around Tetromino blocks. ', 500, 158)
-        ctx.fillText('steer around Tetromino blocks. ', 500, 158)
-        ctx.strokeText('flying past I blocks give 4 points.', 500, 178)
-        ctx.fillText('flying past I blocks give 4 points.', 500, 178)
+        ctx.fillStyle = 'rgb(253, 236, 239)'
+        ctx.strokeText('WASD steers your vessel.', 175, 38)
+        ctx.fillText('WASD steers your vessel.', 175, 38)
+        ctx.strokeText('steer around Tetromino blocks. ', 275, 58)
+        ctx.fillText('steer around Tetromino blocks. ', 275, 58)
+        ctx.strokeText('flying past I blocks give 4 points.', 375, 78)
+        ctx.fillText('flying past I blocks give 4 points.', 375, 78)
     }
-    ctx.fillStyle = 'rgb(253, 226, 229)'
+    ctx.fillStyle = 'rgb(253, 236, 239)'
     ctx.fillText('press enter to restart', 795, 545)
 }
 
@@ -260,14 +260,14 @@ function detectHit() {
     if(slab.crashed){
         slab.crashed = false
         crashed.play()
-        ctx.fillStyle = 'rgb(253, 226, 229)'
+        ctx.fillStyle = 'rgb(253, 236, 239)'
         ctx.fillText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
     if(quad.crashed){
         quad.crashed = false
         crashed.play()
-        ctx.fillStyle = 'rgb(253, 226, 229)'
+        ctx.fillStyle = 'rgb(253, 236, 239)'
         ctx.fillText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
