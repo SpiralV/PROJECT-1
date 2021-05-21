@@ -12,12 +12,18 @@ window.onload = function() {
     let quad
     let slab
     let player 
-    let shoot
+    // let shoot
     let enemyTimer = 0
     let score = 0
+    let frameSec = setInterval(animate, 60)
     const playerPic = new Image()
     playerPic.src = 'speship-left.png'
-
+    const crashed = document.createElement('audio')
+    crashed.src = 'sfx/game-over.wav'
+    const staato = document.createElement('audio')
+    staato.src = 'sfx/Item2A_3.wav'
+    const bompin = document.createElement('audio')
+    bompin.src = 'sfx/maybe-border-sound.wav'
 
 
 /* input current solve */
@@ -33,6 +39,7 @@ function inpHandle(e) {
             player.y -= 25
             if(player.y == -25){
                 player.y += 25
+                bompin.play()
             }
         break
         // 'a' x-=
@@ -40,6 +47,7 @@ function inpHandle(e) {
             player.x -= 25
             if(player.x == -25){
                 player.x += 25
+                bompin.play()
             }
         break
         // 's' y+=
@@ -47,6 +55,7 @@ function inpHandle(e) {
             player.y += 25
             if(player.y == 450){
                 player.y -= 25
+                bompin.play()
             }
         break
         // 'd' x+=
@@ -54,17 +63,22 @@ function inpHandle(e) {
             player.x += 25
             if(player.x == 925){
                 player.x -= 25
+                bompin.play()
             }
         break
         // 'Enter' - reset function, potential for refactor 
         case (13):
-            setInterval(frameSec, 60)
+            clearInterval(frameSec)
+            frameSec = setInterval(animate, 60)
+            staato.play()
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             slab.crashed = false
             quad.crashed = false
             score = 0
             enemyTimer = 0
             player = new Player(350, 100, 'rgba(0, 0, 0, 0)', 100, 100)
+            slab = new Tetromino(50, 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
+            quad = new Tetromino(700, 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
         break
 
         // experimental bullet functionality
@@ -174,22 +188,22 @@ class Tetromino {
 }
 
 // just to get game to function on tick 1 idk why
-slab = new Tetromino(50, 600, 'rgba(140, 140, 220, 0.8)', 100, 300)
-quad = new Tetromino(700, 600, 'rgba(104, 39, 39, 0.8)', 200, 200)
+slab = new Tetromino(50, 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
+quad = new Tetromino(700, 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
 
 // randomize block type and spawn location
 function minoSummon(){
     if(enemyTimer % 60 == 0){
-        quad = new Tetromino(Math.random() * (canvas.width - 50), 600, 'rgba(104, 39, 39, 0.8)', 200, 200)
+        quad = new Tetromino(Math.random() * (canvas.width - 50), 600, 'rgba(216, 14, 78, 0.7)', 200, 200)
     }
     if(enemyTimer % 150 == 0){
-        slab = new Tetromino(Math.random() * (canvas.width - 300), 600, 'rgba(39, 39, 104, 0.8)', 100, 300)
+        slab = new Tetromino(Math.random() * (canvas.width - 300), 600, 'rgba(158, 194, 233, 0.7)', 100, 300)
     }
 }
   
 
 // overall timing control 
-let frameSec = setInterval(animate, 60)
+
 
 // sets animations and text fields within game window
 function animate(){
@@ -199,19 +213,14 @@ function animate(){
     quad.render()
     slab.render()
     player.render()
-    if (!quad.crashed) {
-        detectHit()
-    }
-    if(!slab.crashed) {
-        detectHit()
-    }
-    ctx.fillStyle = 'slategrey'
+    detectHit()
+    ctx.fillStyle = '#bada55'
     ctx.fillText('blocks passed: ' + score, 799, 19)
     // ctx.fillStyle = 'rgba(39, 9, 239, 0.2)'
     if(enemyTimer < 120){
     ctx.fillText('use WASD for arrow keys.', 100, 138)
-    ctx.fillText('dodge the Tetrominos!', 100, 158)
-    ctx.fillText('pass line bars for points!', 100, 178)
+    ctx.fillText('dodge the Tetrominos.', 100, 158)
+    ctx.fillText('dodged', 100, 178)
     }
     ctx.fillText('press enter to restart', 795, 545)
 }
@@ -229,9 +238,10 @@ function detectHit() {
         player.y + player.height >= quad.y
         ) {
          quad.crashed = true
+         console.log('hello')
         }
     
-    // refactor potential here, unsure best course of actiond
+    // refactor potential here, unsure best course of action
     if (
         player.x + player.width >= slab.x &&
         player.x <= slab.x + slab.width &&
@@ -239,12 +249,21 @@ function detectHit() {
         player.y + player.height >= slab.y
         ) {
          slab.crashed = true
+         console.log('checking')
         }
     if(slab.crashed){
-        ctx.fillText('You crashed! Press enter to retry!', 250, 500)
+        slab.crashed = false
+        crashed.play()
+        ctx.fillStyle = 'lightpink'
+        ctx.fillText('You crashed! Press enter to retry!', 300, 400)
+        clearInterval(frameSec)
     }
     if(quad.crashed){
-        ctx.fillText('You crashed! Press enter to retry!', 250, 500)
+        quad.crashed = false
+        crashed.play()
+        ctx.fillStyle = 'lightpink'
+        ctx.fillText('You crashed! Press enter to retry!', 300, 250)
+        clearInterval(frameSec)
     }
 }
 }
