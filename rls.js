@@ -202,8 +202,6 @@ function minoSummon(){
 }
   
 
-// overall timing control 
-
 
 // sets animations and text fields within game window
 function animate(){
@@ -261,14 +259,18 @@ function detectHit() {
         slab.crashed = false
         crashed.play()
         ctx.fillStyle = 'rgb(253, 236, 239)'
+        ctx.strokeStyle = 'rgb(56, 12, 56)'
         ctx.fillText('You crashed! Press enter to retry!', 300, 300)
+        ctx.strokeText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
     if(quad.crashed){
         quad.crashed = false
         crashed.play()
         ctx.fillStyle = 'rgb(253, 236, 239)'
+        ctx.strokeStyle = 'rgb(64, 32, 64)'
         ctx.fillText('You crashed! Press enter to retry!', 300, 300)
+        ctx.strokeText('You crashed! Press enter to retry!', 300, 300)
         clearInterval(frameSec)
     }
 }
